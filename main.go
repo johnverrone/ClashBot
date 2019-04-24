@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/johnverrone/clashbot/bot"
 	"github.com/johnverrone/clashbot/clash"
+	"github.com/robfig/cron"
 )
 
 var BaseURL string
@@ -22,25 +22,24 @@ func main() {
 
 	clashClient := clash.NewClashClient(clanTag, "Bearer "+clashToken, "https://api.clashofclans.com/v1")
 
-	// clan, err := clashClient.GetClan()
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	war, err := clashClient.GetWar()
-	if err != nil {
-		fmt.Println(err)
-	}
+	warState := make(chan string)
+	c := cron.New()
+	c.AddFunc("*/10 * * * * *", func() { clashClient.CheckForWar(warState) })
+	go c.Start()
 
 	clashBot := bot.NewBot("groupme")
-	fmt.Println("member:", war.Clan.Members[0].Name)
-	fmt.Println("war:", war.Clan.Members[0].Attacks)
 
-	msg, err := formatWarMessage(war)
-	clashBot.SendMessage(msg)
+	for {
+		if <-warState == "inWar" {
+			clashBot.SendMessage("War has started!")
+			break
+		}
+	}
+
+	c.Stop()
 }
 
 func formatWarMessage(war clash.CurrentWar) (string, error) {
 
-	return war.Clan.Members[0].Name, nil
+	return war.State, nil
 }
