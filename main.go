@@ -26,17 +26,21 @@ func main() {
 	c := cron.New()
 	c.AddFunc("*/10 * * * * *", func() { clashClient.CheckForWar(warState) })
 	go c.Start()
+	defer c.Stop()
 
 	clashBot := bot.NewBot("groupme")
 
+	var state string
+	var prevState string
 	for {
-		if <-warState == "inWar" {
+		prevState = state
+		state = <-warState
+
+		if prevState == "preparation" && state == "inWar" {
 			clashBot.SendMessage("War has started!")
 			break
 		}
 	}
-
-	c.Stop()
 }
 
 func formatWarMessage(war clash.CurrentWar) (string, error) {
