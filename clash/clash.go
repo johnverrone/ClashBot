@@ -3,6 +3,7 @@ package clash
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 )
@@ -145,4 +146,14 @@ func (c *Clash) GetWar() (CurrentWar, error) {
 	json.NewDecoder(resp.Body).Decode(&war)
 
 	return war, nil
+}
+
+func (c *Clash) CheckForWar(state chan<- string) {
+
+	war, err := c.GetWar()
+	if err != nil {
+		fmt.Println("Error checking war status: ", err)
+	}
+
+	state <- war.State
 }
