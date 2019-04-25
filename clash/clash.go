@@ -6,7 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sync"
 )
+
+type LockingCounter struct {
+	sync.RWMutex
+	Count map[string]int
+}
 
 type Location struct {
 	id        int
@@ -156,4 +162,42 @@ func (c *Clash) CheckForWar(state chan<- string) {
 	}
 
 	state <- war.State
+}
+
+func (c *Clash) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *LockingCounter) string {
+	prevAttackCounter.Lock()
+	defer prevAttackCounter.Unlock()
+
+	if len(m.Attacks) > prevAttackCounter.Count[m.Name] {
+		recentAttack := GetMostRecentAttack(m)
+		defenderMapPosition := c.GetOpponentMapPosition(recentAttack.DefenderTag)
+
+		prevAttackCounter.Count[m.Name] = len(m.Attacks)
+		return fmt.Sprintf("%s just %d starred their number %d!\n", m.Name, recentAttack.Stars, defenderMapPosition)
+	}
+
+	prevAttackCounter.Count[m.Name] = len(m.Attacks)
+	return ""
+}
+
+func GetMostRecentAttack(m *ClanWarMember) ClanWarAttack {
+	var recentAttack ClanWarAttack
+	for _, a := range m.Attacks {
+		if a.Order > recentAttack.Order {
+			recentAttack = a
+		}
+	}
+	return recentAttack
+}
+
+func (c *Clash) GetOpponentMapPosition(tag string) int {
+	war, _ := c.GetWar()
+
+	for _, p := range war.Opponent.Members {
+		if p.Tag == tag {
+			return p.MapPosition
+		}
+	}
+
+	return -1
 }

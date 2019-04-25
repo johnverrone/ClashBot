@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -36,14 +37,33 @@ func main() {
 		prevState = state
 		state = <-warState
 
+		war, err := clashClient.GetWar()
+		if err != nil {
+			fmt.Println("Error getting war", err)
+			continue
+		}
+
+		if state == "inWar" {
+
+			var prevAttackCounter = &clash.LockingCounter{Count: make(map[string]int)}
+
+			for _, m := range war.Clan.Members {
+				prevAttackCounter.Count[m.Name] = len(m.Attacks)
+			}
+
+			for _, m := range war.Clan.Members {
+				go func(mem clash.ClanWarMember) {
+					msg := clashClient.CheckForAttackUpdates(&mem, prevAttackCounter)
+					if msg != "" {
+						clashBot.SendMessage(msg)
+					}
+				}(m)
+			}
+		}
+
 		if prevState == "preparation" && state == "inWar" {
 			clashBot.SendMessage("War has started!")
 			break
 		}
 	}
-}
-
-func formatWarMessage(war clash.CurrentWar) (string, error) {
-
-	return war.State, nil
 }
