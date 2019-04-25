@@ -157,3 +157,27 @@ func (c *Clash) CheckForWar(state chan<- string) {
 
 	state <- war.State
 }
+
+func (m *ClanWarMember) CheckForAttackUpdates(prevAttackCount *map[string]int) {
+	if len(m.Attacks) > (*prevAttackCount)[m.Name] {
+		recentAttack := GetMostRecentAttack(m)
+
+		fmt.Printf("%s just %d starred %s!\n", m.Name, recentAttack.Stars, recentAttack.DefenderTag)
+
+		(*prevAttackCount)[m.Name] = len(m.Attacks)
+		return
+	}
+
+	(*prevAttackCount)[m.Name] = len(m.Attacks)
+	return
+}
+
+func GetMostRecentAttack(m *ClanWarMember) ClanWarAttack {
+	var recentAttack ClanWarAttack
+	for _, a := range m.Attacks {
+		if a.Order > recentAttack.Order {
+			recentAttack = a
+		}
+	}
+	return recentAttack
+}

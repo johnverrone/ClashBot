@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -36,6 +37,20 @@ func main() {
 		prevState = state
 		state = <-warState
 
+		war, err := clashClient.GetWar()
+		if err != nil {
+			fmt.Println("Error getting war", err)
+			continue
+		}
+
+		prevAttackCounts := make(map[string]int)
+
+		if state == "inWar" {
+			for _, m := range war.Clan.Members {
+				go m.CheckForAttackUpdates(&prevAttackCounts)
+			}
+		}
+
 		if prevState == "preparation" && state == "inWar" {
 			clashBot.SendMessage("War has started!")
 			break
@@ -44,6 +59,5 @@ func main() {
 }
 
 func formatWarMessage(war clash.CurrentWar) (string, error) {
-
 	return war.State, nil
 }
