@@ -1,1 +1,1 @@
-worker: ./clashbot
+worker: ./bin/clashbot
