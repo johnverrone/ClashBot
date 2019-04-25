@@ -54,6 +54,7 @@ func main() {
 			for _, m := range war.Clan.Members {
 				go func(mem clash.ClanWarMember) {
 					msg := clashClient.CheckForAttackUpdates(&mem, prevAttackCounter)
+					fmt.Println("Attack updates:", msg)
 					if msg != "" {
 						clashBot.SendMessage(msg)
 					}
