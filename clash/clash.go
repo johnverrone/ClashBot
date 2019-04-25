@@ -9,6 +9,11 @@ import (
 	"sync"
 )
 
+type LockingCounter struct {
+	sync.RWMutex
+	Count map[string]int
+}
+
 type Location struct {
 	id        int
 	name      string
@@ -159,19 +164,19 @@ func (c *Clash) CheckForWar(state chan<- string) {
 	state <- war.State
 }
 
-func (c *Clash) CheckForAttackUpdates(m *ClanWarMember, prevAttackCount *map[string]int, prevAttackLock *sync.RWMutex) string {
-	prevAttackLock.Lock()
-	defer prevAttackLock.Unlock()
+func (c *Clash) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *LockingCounter) string {
+	prevAttackCounter.Lock()
+	defer prevAttackCounter.Unlock()
 
-	if len(m.Attacks) > (*prevAttackCount)[m.Name] {
+	if len(m.Attacks) > prevAttackCounter.Count[m.Name] {
 		recentAttack := GetMostRecentAttack(m)
 		defenderMapPosition := c.GetOpponentMapPosition(recentAttack.DefenderTag)
 
-		(*prevAttackCount)[m.Name] = len(m.Attacks)
+		prevAttackCounter.Count[m.Name] = len(m.Attacks)
 		return fmt.Sprintf("%s just %d starred their number %d!\n", m.Name, recentAttack.Stars, defenderMapPosition)
 	}
 
-	(*prevAttackCount)[m.Name] = len(m.Attacks)
+	prevAttackCounter.Count[m.Name] = len(m.Attacks)
 	return ""
 }
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
 
 	"github.com/johnverrone/clashbot/bot"
 	"github.com/johnverrone/clashbot/clash"
@@ -46,15 +45,15 @@ func main() {
 
 		if state == "inWar" {
 
-			prevAttackCounts := make(map[string]int)
+			var prevAttackCounter = &clash.LockingCounter{Count: make(map[string]int)}
+
 			for _, m := range war.Clan.Members {
-				prevAttackCounts[m.Name] = len(m.Attacks)
+				prevAttackCounter.Count[m.Name] = len(m.Attacks)
 			}
-			var prevAttackLock sync.RWMutex
 
 			for _, m := range war.Clan.Members {
 				go func(mem clash.ClanWarMember) {
-					msg := clashClient.CheckForAttackUpdates(&mem, &prevAttackCounts, &prevAttackLock)
+					msg := clashClient.CheckForAttackUpdates(&mem, prevAttackCounter)
 					if msg != "" {
 						clashBot.SendMessage(msg)
 					}
