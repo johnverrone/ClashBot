@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sync"
 )
 
 type Location struct {
@@ -158,18 +159,20 @@ func (c *Clash) CheckForWar(state chan<- string) {
 	state <- war.State
 }
 
-func (m *ClanWarMember) CheckForAttackUpdates(prevAttackCount *map[string]int) {
+func (c *Clash) CheckForAttackUpdates(m *ClanWarMember, prevAttackCount *map[string]int, prevAttackLock *sync.RWMutex) string {
+	prevAttackLock.Lock()
+	defer prevAttackLock.Unlock()
+
 	if len(m.Attacks) > (*prevAttackCount)[m.Name] {
 		recentAttack := GetMostRecentAttack(m)
-
-		fmt.Printf("%s just %d starred %s!\n", m.Name, recentAttack.Stars, recentAttack.DefenderTag)
+		defenderMapPosition := c.GetOpponentMapPosition(recentAttack.DefenderTag)
 
 		(*prevAttackCount)[m.Name] = len(m.Attacks)
-		return
+		return fmt.Sprintf("%s just %d starred their number %d!\n", m.Name, recentAttack.Stars, defenderMapPosition)
 	}
 
 	(*prevAttackCount)[m.Name] = len(m.Attacks)
-	return
+	return ""
 }
 
 func GetMostRecentAttack(m *ClanWarMember) ClanWarAttack {
@@ -180,4 +183,16 @@ func GetMostRecentAttack(m *ClanWarMember) ClanWarAttack {
 		}
 	}
 	return recentAttack
+}
+
+func (c *Clash) GetOpponentMapPosition(tag string) int {
+	war, _ := c.GetWar()
+
+	for _, p := range war.Opponent.Members {
+		if p.Tag == tag {
+			return p.MapPosition
+		}
+	}
+
+	return -1
 }
