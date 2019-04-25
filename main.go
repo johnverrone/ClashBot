@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -36,9 +35,6 @@ func main() {
 	for {
 		prevState = state
 		state = <-warState
-
-		fmt.Println("Previous state:", prevState)
-		fmt.Println("Current state:", state)
 
 		if prevState == "preparation" && state == "inWar" {
 			clashBot.SendMessage("War has started!")
