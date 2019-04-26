@@ -30,6 +30,12 @@ func main() {
 	defer c.Stop()
 
 	clashBot := bot.NewBot("groupme")
+	var prevAttackCounter = &clash.LockingCounter{Count: make(map[string]int)}
+
+	war, _ := clashClient.GetWar()
+	for _, m := range war.Clan.Members {
+		prevAttackCounter.Count[m.Name] = len(m.Attacks)
+	}
 
 	var state string
 	var prevState string
@@ -44,12 +50,6 @@ func main() {
 		}
 
 		if state == "inWar" {
-
-			var prevAttackCounter = &clash.LockingCounter{Count: make(map[string]int)}
-
-			for _, m := range war.Clan.Members {
-				prevAttackCounter.Count[m.Name] = len(m.Attacks)
-			}
 
 			for _, m := range war.Clan.Members {
 				go func(mem clash.ClanWarMember) {

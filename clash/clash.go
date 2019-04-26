@@ -165,15 +165,18 @@ func (c *Clash) CheckForWar(state chan<- string) {
 }
 
 func (c *Clash) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *LockingCounter) string {
+	prevAttackCounter.RLock()
+	newAttack := len(m.Attacks) > prevAttackCounter.Count[m.Name]
+	prevAttackCounter.RUnlock()
+
 	prevAttackCounter.Lock()
 	defer prevAttackCounter.Unlock()
-
-	if len(m.Attacks) > prevAttackCounter.Count[m.Name] {
+	if newAttack {
 		recentAttack := GetMostRecentAttack(m)
 		defenderMapPosition := c.GetOpponentMapPosition(recentAttack.DefenderTag)
 
 		prevAttackCounter.Count[m.Name] = len(m.Attacks)
-		return fmt.Sprintf("%s just %d starred their number %d!\n", m.Name, recentAttack.Stars, defenderMapPosition)
+		return fmt.Sprintf("%s just %d starred number %d!\n", m.Name, recentAttack.Stars, defenderMapPosition)
 	}
 
 	prevAttackCounter.Count[m.Name] = len(m.Attacks)
