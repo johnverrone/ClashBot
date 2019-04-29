@@ -25,7 +25,7 @@ func main() {
 
 	warState := make(chan string)
 	c := cron.New()
-	c.AddFunc("*/10 * * * * *", func() { clashClient.CheckForWar(warState) })
+	c.AddFunc("*/30 * * * * *", func() { clashClient.CheckForWar(warState) })
 	go c.Start()
 	defer c.Stop()
 
