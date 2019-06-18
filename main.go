@@ -37,6 +37,8 @@ func main() {
 		prevAttackCounter.Count[m.Name] = len(m.Attacks)
 	}
 
+	fmt.Println("Bot has started up!")
+
 	var state string
 	var prevState string
 	for {
