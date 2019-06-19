@@ -2,7 +2,6 @@ package bot
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/johnverrone/clashbot/pkg/chat"
 	"github.com/johnverrone/clashbot/pkg/clash"
@@ -19,7 +18,13 @@ func RunBotLogic(clashClient clash.Client, chatBot chat.Bot, prevState *PrevStat
 		fmt.Println("Error getting war", err)
 	}
 
-	fmt.Printf("time: %s, prevState: %+v, war.State: %s\n", time.Now(), prevState, war.State)
+	if war.State == "notInWar" && prevState.War == "inWar" {
+		msg := clashClient.GetWarResults(&war)
+		if msg != "" {
+			chatBot.SendMessage(msg)
+		}
+		return
+	}
 
 	if war.State == "inWar" {
 		for _, m := range war.Clan.Members {
