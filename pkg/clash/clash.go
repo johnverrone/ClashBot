@@ -45,8 +45,8 @@ type WarClan struct {
 	Name      string          `json:"name"`
 	BadgeUrls URLContainer    `json:"badgeUrls"`
 	ClanLevel int             `json:"clanLevel"`
-	Attacks   int             `json:"endTime"`
-	Stars     int             `json:"clan"`
+	Attacks   int             `json:"attacks"`
+	Stars     int             `json:"stars"`
 	ExpEarned int             `json:"expEarned"`
 	Members   []ClanWarMember `json:"members"`
 }

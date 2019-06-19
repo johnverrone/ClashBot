@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/johnverrone/clashbot/pkg/chat"
 	"github.com/johnverrone/clashbot/pkg/clash"
@@ -30,8 +31,8 @@ func RunBotLogic(clashClient clash.Client, chatClient chat.Client, prevState *Pr
 		for _, m := range war.Clan.Members {
 			go func(mem clash.ClanWarMember) {
 				msg := clashClient.CheckForAttackUpdates(&mem, prevState.AttackCounter)
-				fmt.Println("Attack updates:", msg)
 				if msg != "" {
+					fmt.Printf("%s: %s\n", time.Now(), msg)
 					chatClient.SendMessage(msg)
 				}
 			}(m)
