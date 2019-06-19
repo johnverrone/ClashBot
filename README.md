@@ -5,6 +5,7 @@
 A chat bot that will send Clash of Clans information to your favorite chat client. Currently only developed for GroupMe but Slack and Discord are in the works.
 
 **What does it do?**
+
 Sends notifications for the following:
 
 - War start
