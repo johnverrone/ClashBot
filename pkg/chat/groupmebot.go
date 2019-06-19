@@ -1,4 +1,4 @@
-package bot
+package chat
 
 import (
 	"bytes"
@@ -10,18 +10,18 @@ import (
 
 type GroupMeBot struct {
 	token string
-	botId string
+	botID string
 }
 
 type PostBody struct {
-	BotId string `json:"bot_id"`
+	BotID string `json:"bot_id"`
 	Text  string `json:"text"`
 }
 
 func (b *GroupMeBot) SendMessage(message string) error {
 
 	postBody := PostBody{
-		BotId: b.botId,
+		BotID: b.botID,
 		Text:  message,
 	}
 

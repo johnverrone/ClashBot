@@ -37,7 +37,7 @@ type CurrentWar struct {
 type WarClan struct {
 	Tag       string          `json:"tag"`
 	Name      string          `json:"name"`
-	BadgeUrls UrlContainer    `json:"badgeUrls"`
+	BadgeUrls URLContainer    `json:"badgeUrls"`
 	ClanLevel int             `json:"clanLevel"`
 	Attacks   int             `json:"endTime"`
 	Stars     int             `json:"clan"`
@@ -45,7 +45,7 @@ type WarClan struct {
 	Members   []ClanWarMember `json:"members"`
 }
 
-type UrlContainer struct {
+type URLContainer struct {
 	Small  string `json:"small"`
 	Medium string `json:"medium"`
 	Large  string `json:"large"`
@@ -88,26 +88,26 @@ type Clan struct {
 	Description      string   `json:"description"`
 }
 
-type Clash struct {
+type Client struct {
 	apiToken string
 	clanTag  string
-	baseUrl  string
+	baseURL  string
 }
 
-func NewClashClient(clanTag, apiToken, baseUrl string) Clash {
-	return Clash{
+func NewClient(clanTag, apiToken, baseURL string) Client {
+	return Client{
 		clanTag:  clanTag,
 		apiToken: apiToken,
-		baseUrl:  baseUrl,
+		baseURL:  baseURL,
 	}
 }
 
-func (c *Clash) GetClan() (Clan, error) {
+func (c *Client) GetClan() (Clan, error) {
 	var clan Clan
 
 	client := http.Client{}
 
-	req, err := http.NewRequest("GET", c.baseUrl+"/clans/"+url.QueryEscape(c.clanTag), nil)
+	req, err := http.NewRequest("GET", c.baseURL+"/clans/"+url.QueryEscape(c.clanTag), nil)
 	if err != nil {
 		return clan, err
 	}
@@ -128,12 +128,12 @@ func (c *Clash) GetClan() (Clan, error) {
 	return clan, nil
 }
 
-func (c *Clash) GetWar() (CurrentWar, error) {
+func (c *Client) GetWar() (CurrentWar, error) {
 	var war CurrentWar
 
 	client := http.Client{}
 
-	req, err := http.NewRequest("GET", c.baseUrl+"/clans/"+url.QueryEscape(c.clanTag)+"/currentwar", nil)
+	req, err := http.NewRequest("GET", c.baseURL+"/clans/"+url.QueryEscape(c.clanTag)+"/currentwar", nil)
 	if err != nil {
 		return war, err
 	}
@@ -154,8 +154,7 @@ func (c *Clash) GetWar() (CurrentWar, error) {
 	return war, nil
 }
 
-func (c *Clash) CheckForWar(state chan<- string) {
-
+func (c *Client) CheckForWar(state chan<- string) {
 	war, err := c.GetWar()
 	if err != nil {
 		fmt.Println("Error checking war status: ", err)
@@ -164,7 +163,7 @@ func (c *Clash) CheckForWar(state chan<- string) {
 	state <- war.State
 }
 
-func (c *Clash) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *LockingCounter) string {
+func (c *Client) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *LockingCounter) string {
 	prevAttackCounter.RLock()
 	newAttack := len(m.Attacks) > prevAttackCounter.Count[m.Name]
 	prevAttackCounter.RUnlock()
@@ -193,7 +192,7 @@ func GetMostRecentAttack(m *ClanWarMember) ClanWarAttack {
 	return recentAttack
 }
 
-func (c *Clash) GetOpponentMapPosition(tag string) int {
+func (c *Client) GetOpponentMapPosition(tag string) int {
 	war, _ := c.GetWar()
 
 	for _, p := range war.Opponent.Members {

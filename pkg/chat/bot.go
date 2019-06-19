@@ -1,4 +1,4 @@
-package bot
+package chat
 
 import (
 	"log"
@@ -10,15 +10,15 @@ type Bot interface {
 }
 
 func NewBot(chatType string) Bot {
-	botId := os.Getenv("BOT_ID")
-	if botId == "" {
-		log.Fatal("Environment not set correctly")
+	botID := os.Getenv("BOT_ID")
+	if botID == "" {
+		log.Fatal("BOT_ID not set correctly")
 	}
 	switch chatType {
 	case "groupme":
 		return &GroupMeBot{
 			token: "",
-			botId: botId,
+			botID: botID,
 		}
 	}
 	return nil
