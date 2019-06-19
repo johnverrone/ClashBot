@@ -154,15 +154,6 @@ func (c *Client) GetWar() (CurrentWar, error) {
 	return war, nil
 }
 
-func (c *Client) CheckForWar(state chan<- string) {
-	war, err := c.GetWar()
-	if err != nil {
-		fmt.Println("Error checking war status: ", err)
-	}
-
-	state <- war.State
-}
-
 func (c *Client) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *LockingCounter) string {
 	prevAttackCounter.RLock()
 	newAttack := len(m.Attacks) > prevAttackCounter.Count[m.Name]
@@ -202,4 +193,14 @@ func (c *Client) GetOpponentMapPosition(tag string) int {
 	}
 
 	return -1
+}
+
+func (c *Client) GetWarResults(war *CurrentWar) string {
+	if war.Clan.Stars > war.Opponent.Stars {
+		return fmt.Sprintf("We won the war! The final star count was %d - %d", war.Clan.Stars, war.Opponent.Stars)
+	} else if war.Clan.Stars < war.Opponent.Stars {
+		return fmt.Sprintf("We lost the war ☹️.  The final star count was %d - %d", war.Clan.Stars, war.Opponent.Stars)
+	} else {
+		return fmt.Sprintf("We tied this war. The final star count was %d - %d", war.Clan.Stars, war.Opponent.Stars)
+	}
 }
