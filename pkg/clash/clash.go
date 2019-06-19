@@ -9,6 +9,12 @@ import (
 	"sync"
 )
 
+const (
+	NotInWar    = "notInWar"
+	Preparation = "preparation"
+	InWar       = "inWar"
+)
+
 type LockingCounter struct {
 	sync.RWMutex
 	Count map[string]int

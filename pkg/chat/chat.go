@@ -5,21 +5,18 @@ import (
 	"os"
 )
 
-type Bot interface {
+type Client interface {
 	SendMessage(string) error
 }
 
-func NewBot(chatType string) Bot {
+func NewClient(chatType string) Client {
 	switch chatType {
 	case "groupme":
 		botID := os.Getenv("GROUPME_BOT_ID")
 		if botID == "" {
 			log.Fatal("GROUPME_BOT_ID not set correctly")
 		}
-		return &GroupMeBot{
-			token: "",
-			botID: botID,
-		}
+		return NewGroupMeClient(botID)
 	}
 	return nil
 }

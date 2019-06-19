@@ -12,34 +12,34 @@ type PrevState struct {
 	AttackCounter *clash.LockingCounter
 }
 
-func RunBotLogic(clashClient clash.Client, chatBot chat.Bot, prevState *PrevState) {
+func RunBotLogic(clashClient clash.Client, chatClient chat.Client, prevState *PrevState) {
 	war, err := clashClient.GetWar()
 	if err != nil {
 		fmt.Println("Error getting war", err)
 	}
 
-	if war.State == "notInWar" && prevState.War == "inWar" {
+	if war.State == clash.NotInWar && prevState.War == clash.InWar {
 		msg := clashClient.GetWarResults(&war)
 		if msg != "" {
-			chatBot.SendMessage(msg)
+			chatClient.SendMessage(msg)
 		}
 		return
 	}
 
-	if war.State == "inWar" {
+	if war.State == clash.InWar {
 		for _, m := range war.Clan.Members {
 			go func(mem clash.ClanWarMember) {
 				msg := clashClient.CheckForAttackUpdates(&mem, prevState.AttackCounter)
 				fmt.Println("Attack updates:", msg)
 				if msg != "" {
-					chatBot.SendMessage(msg)
+					chatClient.SendMessage(msg)
 				}
 			}(m)
 		}
 	}
 
-	if war.State == "inWar" && prevState.War == "preparation" {
-		chatBot.SendMessage("War has started!")
+	if war.State == clash.InWar && prevState.War == clash.Preparation {
+		chatClient.SendMessage("War has started!")
 	}
 
 	prevState.War = war.State

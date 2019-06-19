@@ -8,8 +8,7 @@ import (
 	"net/http"
 )
 
-type GroupMeBot struct {
-	token string
+type GroupMeClient struct {
 	botID string
 }
 
@@ -18,7 +17,13 @@ type PostBody struct {
 	Text  string `json:"text"`
 }
 
-func (b *GroupMeBot) SendMessage(message string) error {
+func NewGroupMeClient(botID string) *GroupMeClient {
+	return &GroupMeClient{
+		botID: botID,
+	}
+}
+
+func (b *GroupMeClient) SendMessage(message string) error {
 
 	postBody := PostBody{
 		BotID: b.botID,
