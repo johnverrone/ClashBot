@@ -10,12 +10,12 @@ type Bot interface {
 }
 
 func NewBot(chatType string) Bot {
-	botID := os.Getenv("BOT_ID")
-	if botID == "" {
-		log.Fatal("BOT_ID not set correctly")
-	}
 	switch chatType {
 	case "groupme":
+		botID := os.Getenv("GROUPME_BOT_ID")
+		if botID == "" {
+			log.Fatal("GROUPME_BOT_ID not set correctly")
+		}
 		return &GroupMeBot{
 			token: "",
 			botID: botID,

@@ -14,13 +14,13 @@ import (
 
 func main() {
 	clanTag := os.Getenv("CLAN_TAG")
-	clashToken := os.Getenv("CLASH_TOKEN")
+	clashAPIKey := os.Getenv("CLASH_API_KEY")
 
-	if clanTag == "" || clashToken == "" {
-		log.Fatal("CLAN_TAG or CLASH_TOKEN not set correctly")
+	if clanTag == "" || clashAPIKey == "" {
+		log.Fatal("CLAN_TAG or CLASH_API_KEY not set correctly")
 	}
 
-	clashClient := clash.NewClient(clanTag, "Bearer "+clashToken, "https://api.clashofclans.com/v1")
+	clashClient := clash.NewClient(clanTag, "Bearer "+clashAPIKey, "https://api.clashofclans.com/v1")
 	chatBot := chat.NewBot("groupme")
 
 	prevState := bot.PrevState{
