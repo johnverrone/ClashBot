@@ -25,4 +25,9 @@ Want to use it?! Great, here's how to get this configured for your clan.
 ```bash
 go get github.com/johnverrone/clashbot
 
+cd $GOPATH/src/github.com/johnverrone/clashbot
+
+go build .
+```
+
 
