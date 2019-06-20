@@ -19,29 +19,52 @@ func RunBotLogic(clashClient clash.Client, chatClient chat.Client, prevState *Pr
 		fmt.Println("Error getting war", err)
 	}
 
-	if war.State == clash.NotInWar && prevState.War == clash.InWar {
-		msg := clashClient.GetWarResults(&war)
-		if msg != "" {
-			chatClient.SendMessage(msg)
-		}
+	defer func() { prevState.War = war.State }()
+
+	switch true {
+	case war.State == clash.NotInWar && prevState.War == clash.InWar:
+		handleWarEnd(clashClient, chatClient, war)
+		return
+	case war.State == clash.NotInWar:
+		// do nothing...
+		return
+	case war.State == clash.InWar && prevState.War == clash.Preparation:
+		handleWarStart(chatClient)
+	case war.State == clash.InWar:
+		handleWarUpdates(clashClient, chatClient, prevState, war)
 		return
 	}
+}
 
-	if war.State == clash.InWar {
-		for _, m := range war.Clan.Members {
-			go func(mem clash.ClanWarMember) {
-				msg := clashClient.CheckForAttackUpdates(&mem, prevState.AttackCounter)
-				if msg != "" {
-					fmt.Printf("%s: %s\n", time.Now(), msg)
-					chatClient.SendMessage(msg)
-				}
-			}(m)
-		}
+func handleWarStart(chatClient chat.Client) {
+	chatClient.SendMessage("War has started!")
+}
+
+func handleWarEnd(clashClient clash.Client, chatClient chat.Client, war clash.CurrentWar) {
+	msg := clashClient.GetWarResults(&war)
+	if msg != "" {
+		chatClient.SendMessage(msg)
+	}
+}
+
+func handleWarUpdates(clashClient clash.Client, chatClient chat.Client, prevState *PrevState, war clash.CurrentWar) {
+	for _, m := range war.Clan.Members {
+		go func(mem clash.ClanWarMember) {
+			msg := clashClient.CheckForAttackUpdates(&mem, prevState.AttackCounter)
+			if msg != "" {
+				fmt.Printf("%s: %s\n", time.Now(), msg)
+				chatClient.SendMessage(msg)
+			}
+		}(m)
 	}
 
-	if war.State == clash.InWar && prevState.War == clash.Preparation {
-		chatClient.SendMessage("War has started!")
+	layout := "20060102T150405.000Z"
+	t, err := time.Parse(layout, war.EndTime)
+	if err != nil {
+		fmt.Println("Error parsing time", err)
 	}
-
-	prevState.War = war.State
+	twoHours, _ := time.ParseDuration("2h")
+	if time.Until(t) < twoHours {
+		fmt.Printf("Less than 2 hours remaining: %v\n", time.Until(t))
+	}
 }
