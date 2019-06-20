@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/johnverrone/ClashBot.svg?branch=master)](https://travis-ci.org/johnverrone/ClashBot)
 
-A chat bot that will send Clash of Clans information to your favorite chat client. Currently only developed for GroupMe but Slack and Discord are in the works.
+A chat bot that will send Clash of Clans information to your favorite chat client. Currently only developed for GroupMe and Slack but Discord are in the works.
 
 **What does it do?**
 
@@ -51,7 +51,9 @@ go build .
 
 - **CLAN_TAG**: This is your clan id (including the #) and can be found in the "My Clan" tab of your profile in the game.
 - **CLASH_API_KEY**: This is the API Key to talk to the Clash of Clans API. You will need to create a developer account and key [here](https://developer.clashofclans.com/#/new-key).
+- **CHAT_PLATFORM**: 'slack' or 'groupme'
 - **GROUPME_BOT_ID**: Create a GroupMe bot [here](https://dev.groupme.com/bots) and set this variable to the generated Bot ID.
+- **SLACK_WEBHOOK_URL**: Create a Slack Incoming Webhook integration [here](https://api.slack.com/apps) and set this variable to the Webhook URL.
 
 ### Running the Bot
 
@@ -60,7 +62,9 @@ This will run the bot locally and should really only be used for development or 
 ```bash
 export CLAN_TAG=[enter clan tag]
 export CLASH_API_KEY=[enter api key]
+export CHAT_PLATFORM=[enter 'slack' or 'groupme']
 export GROUPME_BOT_ID=[enter GroupMe Bot ID]
+export SLACK_WEBHOOK_URL=[enter Slack Webhook URL]
 ./clashbot
 ```
 
