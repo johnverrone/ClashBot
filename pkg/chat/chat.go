@@ -17,6 +17,12 @@ func NewClient(chatType string) Client {
 			log.Fatal("GROUPME_BOT_ID not set correctly")
 		}
 		return NewGroupMeClient(botID)
+	case "slack":
+		webhookURL := os.Getenv("SLACK_WEBHOOK_URL")
+		if webhookURL == "" {
+			log.Fatal("SLACK_WEBHOOK_URL not set correctly")
+		}
+		return NewSlackClient(webhookURL)
 	}
 	return nil
 }

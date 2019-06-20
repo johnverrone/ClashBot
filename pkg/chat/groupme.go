@@ -12,7 +12,7 @@ type GroupMeClient struct {
 	botID string
 }
 
-type PostBody struct {
+type GroupMePostBody struct {
 	BotID string `json:"bot_id"`
 	Text  string `json:"text"`
 }
@@ -25,7 +25,7 @@ func NewGroupMeClient(botID string) *GroupMeClient {
 
 func (b *GroupMeClient) SendMessage(message string) error {
 
-	postBody := PostBody{
+	postBody := GroupMePostBody{
 		BotID: b.botID,
 		Text:  message,
 	}
