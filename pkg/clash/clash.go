@@ -13,6 +13,7 @@ const (
 	NotInWar    = "notInWar"
 	Preparation = "preparation"
 	InWar       = "inWar"
+	WarEnded    = "warEnded"
 )
 
 type LockingCounter struct {

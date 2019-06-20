@@ -23,7 +23,7 @@ func main() {
 	}
 
 	clashClient := clash.NewClient(clanTag, "Bearer "+clashAPIKey, "https://api.clashofclans.com/v1")
-	chatClient := chat.NewClient("groupme")
+	chatClient := chat.NewClient("slack")
 
 	prevState := bot.PrevState{
 		War:           "",
@@ -43,7 +43,7 @@ func main() {
 	}
 
 	c := cron.New()
-	c.AddFunc("@every 30s", func() { bot.RunBotLogic(clashClient, chatClient, &prevState) })
+	c.AddFunc("@every 5s", func() { bot.RunBotLogic(clashClient, chatClient, &prevState) })
 	go c.Start()
 	sig := make(chan os.Signal)
 	signal.Notify(sig, os.Interrupt, os.Kill)

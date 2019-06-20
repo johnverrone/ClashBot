@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/johnverrone/clashbot/pkg/chat"
@@ -16,23 +17,23 @@ type PrevState struct {
 func RunBotLogic(clashClient clash.Client, chatClient chat.Client, prevState *PrevState) {
 	war, err := clashClient.GetWar()
 	if err != nil {
-		fmt.Println("Error getting war", err)
+		log.Println("Error getting war:", err)
+		return
 	}
+
+	log.Println("War status is", war.State)
 
 	defer func() { prevState.War = war.State }()
 
 	switch true {
-	case war.State == clash.NotInWar && prevState.War == clash.InWar:
+	case war.State == clash.WarEnded && prevState.War == clash.InWar:
 		handleWarEnd(clashClient, chatClient, war)
-		return
-	case war.State == clash.NotInWar:
+	case war.State == clash.WarEnded || war.State == clash.NotInWar:
 		// do nothing...
-		return
 	case war.State == clash.InWar && prevState.War == clash.Preparation:
 		handleWarStart(chatClient)
 	case war.State == clash.InWar:
 		handleWarUpdates(clashClient, chatClient, prevState, war)
-		return
 	}
 }
 
