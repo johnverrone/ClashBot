@@ -12,13 +12,14 @@ import (
 type PrevState struct {
 	War           string
 	AttackCounter *clash.LockingCounter
+	WarEndingSoon bool
 }
 
-func RunBotLogic(clashClient clash.Client, chatClient chat.Client, prevState *PrevState) {
+func RunBotLogic(clashClient clash.Client, chatClient chat.Client, prevState *PrevState) error {
 	war, err := clashClient.GetWar()
 	if err != nil {
 		log.Println("Error getting war:", err)
-		return
+		return err
 	}
 
 	log.Println("War status is", war.State)
@@ -35,6 +36,7 @@ func RunBotLogic(clashClient clash.Client, chatClient chat.Client, prevState *Pr
 	case war.State == clash.InWar:
 		handleWarUpdates(clashClient, chatClient, prevState, war)
 	}
+	return nil
 }
 
 func handleWarStart(chatClient chat.Client) {
@@ -42,7 +44,7 @@ func handleWarStart(chatClient chat.Client) {
 }
 
 func handleWarEnd(clashClient clash.Client, chatClient chat.Client, war clash.CurrentWar) {
-	msg := clashClient.GetWarResults(&war)
+	msg := clash.GetWarResults(&war)
 	if msg != "" {
 		chatClient.SendMessage(msg)
 	}
@@ -59,13 +61,36 @@ func handleWarUpdates(clashClient clash.Client, chatClient chat.Client, prevStat
 		}(m)
 	}
 
+	sendEndOfWarReminder(prevState, chatClient, war)
+}
+
+func sendEndOfWarReminder(prevState *PrevState, chatClient chat.Client, war clash.CurrentWar) {
+	twoHours, _ := time.ParseDuration("2h")
+	remainingTime, err := getRemainingWarTime(war)
+	if err != nil {
+		return
+	}
+
+	if !prevState.WarEndingSoon && remainingTime < twoHours {
+		remainingAttacks := `There is less than 2 hours remaining in the war.`
+		attackMap := clash.GetRemainingAttacks(war)
+		for member, numAttacks := range attackMap {
+			if numAttacks > 0 {
+				remainingAttacks += `\n` + member
+			}
+		}
+
+		chatClient.SendMessage(remainingAttacks)
+	}
+}
+
+func getRemainingWarTime(war clash.CurrentWar) (time.Duration, error) {
 	layout := "20060102T150405.000Z"
 	t, err := time.Parse(layout, war.EndTime)
 	if err != nil {
 		fmt.Println("Error parsing time", err)
+		return time.Minute, err
 	}
-	twoHours, _ := time.ParseDuration("2h")
-	if time.Until(t) < twoHours {
-		fmt.Printf("Less than 2 hours remaining: %v\n", time.Until(t))
-	}
+
+	return time.Until(t), nil
 }

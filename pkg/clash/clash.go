@@ -95,21 +95,29 @@ type Clan struct {
 	Description      string   `json:"description"`
 }
 
-type Client struct {
+//go:generate counterfeiter . Client
+type Client interface {
+	GetClan() (Clan, error)
+	GetWar() (CurrentWar, error)
+	CheckForAttackUpdates(*ClanWarMember, *LockingCounter) string
+	GetOpponentMapPosition(tag string) int
+}
+
+type client struct {
 	apiToken string
 	clanTag  string
 	baseURL  string
 }
 
 func NewClient(clanTag, apiToken, baseURL string) Client {
-	return Client{
+	return &client{
 		clanTag:  clanTag,
 		apiToken: apiToken,
 		baseURL:  baseURL,
 	}
 }
 
-func (c *Client) GetClan() (Clan, error) {
+func (c *client) GetClan() (Clan, error) {
 	var clan Clan
 
 	client := http.Client{}
@@ -135,7 +143,7 @@ func (c *Client) GetClan() (Clan, error) {
 	return clan, nil
 }
 
-func (c *Client) GetWar() (CurrentWar, error) {
+func (c *client) GetWar() (CurrentWar, error) {
 	var war CurrentWar
 
 	client := http.Client{}
@@ -161,7 +169,7 @@ func (c *Client) GetWar() (CurrentWar, error) {
 	return war, nil
 }
 
-func (c *Client) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *LockingCounter) string {
+func (c *client) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *LockingCounter) string {
 	prevAttackCounter.RLock()
 	newAttack := len(m.Attacks) > prevAttackCounter.Count[m.Name]
 	prevAttackCounter.RUnlock()
@@ -190,7 +198,7 @@ func GetMostRecentAttack(m *ClanWarMember) ClanWarAttack {
 	return recentAttack
 }
 
-func (c *Client) GetOpponentMapPosition(tag string) int {
+func (c *client) GetOpponentMapPosition(tag string) int {
 	war, _ := c.GetWar()
 
 	for _, p := range war.Opponent.Members {
@@ -202,7 +210,7 @@ func (c *Client) GetOpponentMapPosition(tag string) int {
 	return -1
 }
 
-func (c *Client) GetWarResults(war *CurrentWar) string {
+func GetWarResults(war *CurrentWar) string {
 	if war.Clan.Stars > war.Opponent.Stars {
 		return fmt.Sprintf("We won the war! The final star count was %d - %d", war.Clan.Stars, war.Opponent.Stars)
 	} else if war.Clan.Stars < war.Opponent.Stars {
@@ -210,4 +218,14 @@ func (c *Client) GetWarResults(war *CurrentWar) string {
 	} else {
 		return fmt.Sprintf("We tied this war. The final star count was %d - %d", war.Clan.Stars, war.Opponent.Stars)
 	}
+}
+
+func GetRemainingAttacks(war CurrentWar) map[string]int {
+	attackMap := map[string]int{}
+
+	for _, dudeOrDudette := range war.Clan.Members {
+		attackMap[dudeOrDudette.Name] = 2 - len(dudeOrDudette.Attacks)
+	}
+
+	return attackMap
 }

@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+//go:generate counterfeiter . Client
 type Client interface {
 	SendMessage(string) error
 }
