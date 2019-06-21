@@ -42,7 +42,7 @@ var _ = Describe("Bot", func() {
 				BeforeEach(func() {
 					fakeClashClient.CheckForAttackUpdatesReturns("")
 					layout := "20060102T150405.000Z"
-					endTime := time.Now().Add(4 * time.Hour).Add(2 * time.Minute).Format(layout)
+					endTime := time.Now().UTC().Add(2 * time.Minute).Format(layout)
 					members := []clash.ClanWarMember{
 						{
 							Name: "john",
