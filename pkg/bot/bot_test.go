@@ -38,6 +38,34 @@ var _ = Describe("Bot", func() {
 		})
 
 		Context("getting the war is successful", func() {
+			Context("and the war just started", func() {
+				BeforeEach(func() {
+					fakeClashClient.GetWarReturns(clash.CurrentWar{
+						State: "inWar",
+					}, nil)
+					err = RunBotLogic(fakeClashClient, fakeChatClient, &PrevState{War: "preparation"})
+				})
+
+				It("calls SendMessage with war results", func() {
+					Expect(err).ToNot(HaveOccurred())
+					Expect(fakeChatClient.SendMessageCallCount()).To(Equal(1))
+				})
+			})
+
+			Context("and the war just ended", func() {
+				BeforeEach(func() {
+					fakeClashClient.GetWarReturns(clash.CurrentWar{
+						State: "warEnded",
+					}, nil)
+					err = RunBotLogic(fakeClashClient, fakeChatClient, &PrevState{War: "inWar"})
+				})
+
+				It("calls SendMessage with war results", func() {
+					Expect(err).ToNot(HaveOccurred())
+					Expect(fakeChatClient.SendMessageCallCount()).To(Equal(1))
+				})
+			})
+
 			Context("and we are currently in a war", func() {
 				BeforeEach(func() {
 					fakeClashClient.CheckForAttackUpdatesReturns("")
