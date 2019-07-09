@@ -72,7 +72,7 @@ var _ = Describe("Bot", func() {
 					fakeClashClient.CheckForAttackUpdatesReturns("")
 					layout := "20060102T150405.000Z"
 					endTime := time.Now().UTC().Add(2 * time.Minute).Format(layout)
-					prevState = &PrevState{WarEndingSoon: false}
+					prevState = &PrevState{SentWarReminder: false}
 					members := []clash.ClanWarMember{
 						{
 							Name: "john",
@@ -111,7 +111,7 @@ var _ = Describe("Bot", func() {
 				It("calls SendMessage", func() {
 					Expect(err).ToNot(HaveOccurred())
 					Expect(fakeChatClient.SendMessageCallCount()).To(Equal(1))
-					Expect(prevState.WarEndingSoon).To(Equal(true))
+					Expect(prevState.SentWarReminder).To(Equal(true))
 				})
 			})
 		})

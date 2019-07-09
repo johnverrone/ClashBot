@@ -10,9 +10,9 @@ import (
 )
 
 type PrevState struct {
-	War           string
-	AttackCounter *clash.LockingCounter
-	WarEndingSoon bool
+	War             string
+	AttackCounter   *clash.LockingCounter
+	SentWarReminder bool
 }
 
 func RunBotLogic(clashClient clash.Client, chatClient chat.Client, prevState *PrevState) error {
@@ -71,7 +71,7 @@ func sendEndOfWarReminder(prevState *PrevState, chatClient chat.Client, war clas
 		return
 	}
 
-	if !prevState.WarEndingSoon && remainingTime < twoHours {
+	if !prevState.SentWarReminder && remainingTime < twoHours {
 		remainingAttacks := `There is less than 2 hours remaining in the war.`
 		attackMap := clash.GetRemainingAttacks(war)
 		for member, numAttacks := range attackMap {
@@ -81,7 +81,7 @@ func sendEndOfWarReminder(prevState *PrevState, chatClient chat.Client, war clas
 		}
 
 		chatClient.SendMessage(remainingAttacks)
-		prevState.WarEndingSoon = true
+		prevState.SentWarReminder = true
 	}
 }
 
