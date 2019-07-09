@@ -17,6 +17,7 @@ var (
 	fakeClashClient *clashfakes.FakeClient
 	fakeChatClient  *chatfakes.FakeClient
 	err             error
+	prevState       *PrevState
 )
 
 var _ = Describe("Bot", func() {
@@ -71,6 +72,7 @@ var _ = Describe("Bot", func() {
 					fakeClashClient.CheckForAttackUpdatesReturns("")
 					layout := "20060102T150405.000Z"
 					endTime := time.Now().UTC().Add(2 * time.Minute).Format(layout)
+					prevState = &PrevState{WarEndingSoon: false}
 					members := []clash.ClanWarMember{
 						{
 							Name: "john",
@@ -103,12 +105,13 @@ var _ = Describe("Bot", func() {
 							Members: members,
 						},
 					}, nil)
-					err = RunBotLogic(fakeClashClient, fakeChatClient, &PrevState{WarEndingSoon: false})
+					err = RunBotLogic(fakeClashClient, fakeChatClient, prevState)
 				})
 
 				It("calls SendMessage", func() {
 					Expect(err).ToNot(HaveOccurred())
 					Expect(fakeChatClient.SendMessageCallCount()).To(Equal(1))
+					Expect(prevState.WarEndingSoon).To(Equal(true))
 				})
 			})
 		})

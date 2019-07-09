@@ -81,6 +81,7 @@ func sendEndOfWarReminder(prevState *PrevState, chatClient chat.Client, war clas
 		}
 
 		chatClient.SendMessage(remainingAttacks)
+		prevState.WarEndingSoon = true
 	}
 }
 
