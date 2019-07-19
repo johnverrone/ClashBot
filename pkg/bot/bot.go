@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/johnverrone/clashbot/pkg/chat"
@@ -94,4 +95,9 @@ func getRemainingWarTime(war clash.CurrentWar) (time.Duration, error) {
 	}
 
 	return time.Until(t), nil
+}
+
+func HandleMessage(w http.ResponseWriter, r *http.Request, chatClient chat.Client) {
+	fmt.Println("A message was sent to the chat!")
+	chatClient.SendMessage("Bot is up!")
 }

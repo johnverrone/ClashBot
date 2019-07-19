@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type GroupMeClient struct {
@@ -15,6 +16,12 @@ type GroupMeClient struct {
 type GroupMePostBody struct {
 	BotID string `json:"bot_id"`
 	Text  string `json:"text"`
+}
+
+type GroupMeCallback struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Text string `json:"text"`
 }
 
 func NewGroupMeClient(botID string) *GroupMeClient {
@@ -48,4 +55,13 @@ func (b *GroupMeClient) SendMessage(message string) error {
 	}
 
 	return nil
+}
+
+func (b *GroupMeClient) HandleMessage(w http.ResponseWriter, r *http.Request) {
+	message := &GroupMeCallback{}
+	json.NewDecoder(r.Body).Decode(message)
+	fmt.Println(message)
+	if strings.ToLower(message.Text) == "status" {
+		b.SendMessage("Bot is up!")
+	}
 }

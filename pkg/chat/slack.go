@@ -47,3 +47,7 @@ func (c *SlackClient) SendMessage(message string) error {
 
 	return nil
 }
+
+func (b *SlackClient) HandleMessage(w http.ResponseWriter, r *http.Request) {
+
+}

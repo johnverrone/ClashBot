@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"time"
@@ -42,6 +43,11 @@ func main() {
 	for pl, count := range prevState.AttackCounter.Count {
 		fmt.Printf("%s: %d\n", pl, count)
 	}
+
+	http.HandleFunc("/", chatClient.HandleMessage)
+	go func() {
+		log.Println(http.ListenAndServe(":8080", nil))
+	}()
 
 	c := cron.New()
 	c.AddFunc("@every 5s", func() { bot.RunBotLogic(clashClient, chatClient, &prevState) })

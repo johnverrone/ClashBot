@@ -2,12 +2,14 @@ package chat
 
 import (
 	"log"
+	"net/http"
 	"os"
 )
 
 //go:generate counterfeiter . Client
 type Client interface {
 	SendMessage(string) error
+	HandleMessage(http.ResponseWriter, *http.Request)
 }
 
 func NewClient(chatType string) Client {
