@@ -18,7 +18,7 @@ const (
 
 type LockingCounter struct {
 	sync.RWMutex
-	Count map[string]int
+	Count map[*ClanWarMember]int
 }
 
 type Location struct {
@@ -171,7 +171,7 @@ func (c *client) GetWar() (CurrentWar, error) {
 
 func (c *client) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *LockingCounter) string {
 	prevAttackCounter.RLock()
-	newAttack := len(m.Attacks) > prevAttackCounter.Count[m.Name]
+	newAttack := len(m.Attacks) > prevAttackCounter.Count[m]
 	prevAttackCounter.RUnlock()
 
 	prevAttackCounter.Lock()
@@ -180,11 +180,11 @@ func (c *client) CheckForAttackUpdates(m *ClanWarMember, prevAttackCounter *Lock
 		recentAttack := GetMostRecentAttack(m)
 		defenderMapPosition := c.GetOpponentMapPosition(recentAttack.DefenderTag)
 
-		prevAttackCounter.Count[m.Name] = len(m.Attacks)
+		prevAttackCounter.Count[m] = len(m.Attacks)
 		return fmt.Sprintf("%s just %d starred number %d!\n", m.Name, recentAttack.Stars, defenderMapPosition)
 	}
 
-	prevAttackCounter.Count[m.Name] = len(m.Attacks)
+	prevAttackCounter.Count[m] = len(m.Attacks)
 	return ""
 }
 
