@@ -2,12 +2,19 @@
 package chatfakes
 
 import (
+	"net/http"
 	"sync"
 
 	"github.com/johnverrone/clashbot/pkg/chat"
 )
 
 type FakeClient struct {
+	HandleMessageStub        func(http.ResponseWriter, *http.Request)
+	handleMessageMutex       sync.RWMutex
+	handleMessageArgsForCall []struct {
+		arg1 http.ResponseWriter
+		arg2 *http.Request
+	}
 	SendMessageStub        func(string) error
 	sendMessageMutex       sync.RWMutex
 	sendMessageArgsForCall []struct {
@@ -21,6 +28,38 @@ type FakeClient struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeClient) HandleMessage(arg1 http.ResponseWriter, arg2 *http.Request) {
+	fake.handleMessageMutex.Lock()
+	fake.handleMessageArgsForCall = append(fake.handleMessageArgsForCall, struct {
+		arg1 http.ResponseWriter
+		arg2 *http.Request
+	}{arg1, arg2})
+	fake.recordInvocation("HandleMessage", []interface{}{arg1, arg2})
+	fake.handleMessageMutex.Unlock()
+	if fake.HandleMessageStub != nil {
+		fake.HandleMessageStub(arg1, arg2)
+	}
+}
+
+func (fake *FakeClient) HandleMessageCallCount() int {
+	fake.handleMessageMutex.RLock()
+	defer fake.handleMessageMutex.RUnlock()
+	return len(fake.handleMessageArgsForCall)
+}
+
+func (fake *FakeClient) HandleMessageCalls(stub func(http.ResponseWriter, *http.Request)) {
+	fake.handleMessageMutex.Lock()
+	defer fake.handleMessageMutex.Unlock()
+	fake.HandleMessageStub = stub
+}
+
+func (fake *FakeClient) HandleMessageArgsForCall(i int) (http.ResponseWriter, *http.Request) {
+	fake.handleMessageMutex.RLock()
+	defer fake.handleMessageMutex.RUnlock()
+	argsForCall := fake.handleMessageArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeClient) SendMessage(arg1 string) error {
@@ -86,6 +125,8 @@ func (fake *FakeClient) SendMessageReturnsOnCall(i int, result1 error) {
 func (fake *FakeClient) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.handleMessageMutex.RLock()
+	defer fake.handleMessageMutex.RUnlock()
 	fake.sendMessageMutex.RLock()
 	defer fake.sendMessageMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
