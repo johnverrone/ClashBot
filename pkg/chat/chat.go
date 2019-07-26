@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Client
+//go:generate counterfeiter . Client
 type Client interface {
 	SendMessage(string) error
 	HandleMessage(http.ResponseWriter, *http.Request)

@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"sync"
-
-	_ "github.com/maxbrunsfeld/counterfeiter/v6"
 )
 
 const (
@@ -97,7 +95,7 @@ type Clan struct {
 	Description      string   `json:"description"`
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Client
+//go:generate counterfeiter . Client
 type Client interface {
 	GetClan() (Clan, error)
 	GetWar() (CurrentWar, error)
