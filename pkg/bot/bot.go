@@ -73,11 +73,11 @@ func sendEndOfWarReminder(prevState *PrevState, chatClient chat.Client, war clas
 	}
 
 	if !prevState.SentWarReminder && remainingTime < twoHours {
-		remainingAttacks := `There is less than 2 hours remaining in the war.`
+		remainingAttacks := "There is less than 2 hours remaining in the war."
 		attackMap := clash.GetRemainingAttacks(war)
 		for member, numAttacks := range attackMap {
 			if numAttacks > 0 {
-				remainingAttacks += `\r` + member
+				remainingAttacks += "\r" + member
 			}
 		}
 
