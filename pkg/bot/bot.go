@@ -77,7 +77,7 @@ func sendEndOfWarReminder(prevState *PrevState, chatClient chat.Client, war clas
 		attackMap := clash.GetRemainingAttacks(war)
 		for member, numAttacks := range attackMap {
 			if numAttacks > 0 {
-				remainingAttacks += `\n` + member
+				remainingAttacks += `\r` + member
 			}
 		}
 
