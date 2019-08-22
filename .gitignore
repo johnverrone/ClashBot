@@ -1,4 +1,4 @@
-setenv.sh
+clash_env
 
 clashbot
 cmd/clashbot/clashbot
