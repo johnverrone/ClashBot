@@ -29,7 +29,7 @@ ssh pi@raspberrypi /bin/bash << EOF
   cd dev;
   source $ENV_FILE
   echo "Sourced $ENV_FILE"
-  nohup ./test >/dev/null 2>&1 &
+  nohup ./$FILE >./logs 2>&1 &
   echo "Running $FILE"
   exit
 EOF
