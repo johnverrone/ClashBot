@@ -1,6 +1,6 @@
 # ClashBot
 
-[![Build Status](https://travis-ci.org/johnverrone/ClashBot.svg?branch=master)](https://travis-ci.org/johnverrone/ClashBot)
+[![Build Status](https://github.com/johnverrone/ClashBot/workflows/Go/badge.svg)](https://github.com/johnverrone/ClashBot/actions)
 
 A chat bot that will send Clash of Clans information to your favorite chat client. Currently only developed for GroupMe and Slack but Discord are in the works.
 
