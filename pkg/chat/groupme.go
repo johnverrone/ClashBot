@@ -19,7 +19,7 @@ type GroupMePostBody struct {
 }
 
 type GroupMeCallback struct {
-	Id   string `json:"id"`
+	ID   string `json:"id"`
 	Name string `json:"name"`
 	Text string `json:"text"`
 }
